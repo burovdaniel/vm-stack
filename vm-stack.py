@@ -6,11 +6,10 @@ def Constructer():#reads the vm file
         code = VM_code.readlines()
 
     code = [line.replace('\n','') for line in code] #remove newline
+
+    code = [line for line in code if not line.startswith('//')]
+
     return code
-
-
-
-
 
 
 

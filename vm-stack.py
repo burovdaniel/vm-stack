@@ -1,8 +1,11 @@
 import re
+import sys
+#File_path = sys.argv[1]#when run script can give vm file
+#do later auto make file for asm
 
 def Constructer():#reads the vm file
 
-    with open('VM-files/BasicTest.vm') as VM_code:
+    with open('VM-files/BasicTest.vm', 'r') as VM_code:
         code = VM_code.readlines()
 
     code = [line.replace('\n','') for line in code] #remove newline
@@ -29,8 +32,22 @@ class Parser:
             self.arg1 = str(line.split()[1])
             self.arg2 = int(line.split()[2])
 
+class Code_writer:
+
+    def open_file():
+        asm_file =  open('BasicTest.asm','x')
+
+    def write_arithmetic(command):
+        same_for_all = ['@SP',
+                        '@M=M-1',
+                        'A=M']
+
+
+
+
+
+
+
+
 if __name__ == '__main__':
     code = Constructer()
-    for line in code:
-        line = Parser(line)
-        print(line.arg2)

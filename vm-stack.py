@@ -42,7 +42,7 @@ class Code_writer:
                         '@M=M-1',
                         'A=M']
 
-
+        not_=
 
 
 

@@ -37,7 +37,7 @@ class Code_writer:
     def open_file():
         asm_file =  open('BasicTest.asm','x')
 
-    def write_arithmetic(command):
+    def write_arithmetic(command : str):
         arithmetic=[]
 
         same_for_all = ['@SP',
@@ -85,7 +85,38 @@ class Code_writer:
         arithmetic = [line + ' \n' for line in arithmetic] #adding newline to each line
         return arithmetic
 
+    def write_pushpop(push_or_pop, segment:str, index:int)#C_PUSH/POP, argument,this,that..., number
+        pushpop=[]
+
+        index_asm=['@X',#X = index
+                   'D=A']
+
+
+        Push_asm=['@SP',
+                  'M=M+1',
+                  'A=M-1',
+                  'M=D']
+        Push_seg=['@XXX',
+                  'D=M+D',
+                  'A=D',
+                  'D=M']
+
+        Pop_asm=['@SP',
+                 'M=M-1',
+                 'A=M',
+                 'D=M']
+        Pop_seg =['@XXX',#segment
+                  'D=M+D',
+                  '@var',
+                  'M=D',
+                  '----',#<-- Pop_asm goes in there
+                  '@var',
+                  'A=M',
+                  'M=D']
+
+        #pointer 0 = @THIS
+        #pointer 1 = @THAT
+
+
 if __name__ == '__main__':
     code = Constructer()
-    art=Code_writer.write_arithmetic('eq')
-    print(art)

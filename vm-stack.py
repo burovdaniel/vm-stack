@@ -14,6 +14,7 @@ def Constructer():#reads the vm file
     return code
 
 
+
 class Parser:
 
     def __init__(self,line):
@@ -21,28 +22,26 @@ class Parser:
 
         #dict for the command type
         command_type_dict = {'pop':'C_POP','push':'C_PUSH'}
-        command_type_dict.update(dict.fromkeys(['eq','sub','neg','add','gt','lt','and','or','not'],'C_ARITHMATIC'))
+        command_type_dict.update(dict.fromkeys(['eq','sub','neg','add','gt','lt','and','or','not'],'C_ARITHMETIC'))
 
         self.command_type = command_type_dict[line.split()[0]] #gives the cammand type
 
         #gives the argmunets of the command
-        if self.command_type is 'C_ARITHMATIC':
+        if self.command_type is 'C_ARITHMETIC':
             self.arg1 = str(line.split()[0])
             self.arg2 = 'None'
         else:
             self.arg1 = str(line.split()[1])
             self.arg2 = int(line.split()[2])
 
-class Code_writer:
 
-    def open_file():
-        asm_file =  open('BasicTest.asm','x')
+class Code_writer:
 
     def write_arithmetic(command : str):
         arithmetic=[]
 
         same_for_all = ['@SP',
-                        '@M=M-1',
+                        'M=M-1',
                         'A=M']
         arithmetic.extend(same_for_all)
 
@@ -88,7 +87,7 @@ class Code_writer:
 
     def write_pushpop(push_or_pop:str, segment:str, index:int): #C_PUSH/POP, argument,this,that..., number make str for easyier
         index = str(index)
-        seg_dict={'constant':'','local':'@LCL','this':'@THIS','that':'@THAT','stack':'@16','temp':'@5','pointer':'@THIS' if index is '0' else '@THAT'}
+        seg_dict={'argument':'@ARG','constant':'','local':'@LCL','this':'@THIS','that':'@THAT','stack':'@16','temp':'@5','pointer':'@THIS' if index is '0' else '@THAT'}
         pushpop=[]
 
         index_asm=['@'+index,
@@ -140,6 +139,22 @@ class Code_writer:
 
 if __name__ == '__main__':
     code = Constructer()
-    pushpop = Code_writer.write_pushpop('C_PUSH','constant','4')
-    print(pushpop)
+    asm_file =  open('BasicTest.asm','x')
+
+    SP_256 = ['@256 \n','D=A \n','@SP \n','M=D \n']#setting sp to 256
+
+    for line in SP_256:
+        asm_file.write(line)
+
+    for line in code:#writing the asm code
+        line = Parser(line)
+        if line.command_type is 'C_ARITHMETIC':
+            asm_code= Code_writer.write_arithmetic(line.arg1)
+            for asm_line in asm_code:
+                asm_file.write(asm_line)
+        else:
+            asm_code=Code_writer.write_pushpop(line.command_type,line.arg1,line.arg2)
+            for asm_line in asm_code:
+                asm_file.write(asm_line)
+
 

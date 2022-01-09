@@ -17,6 +17,7 @@ def Constructer():#reads the vm file
 class Parser:
 
     def __init__(self,line):
+        self.line=line
 
         #dict for the command type
         command_type_dict = {'pop':'C_POP','push':'C_PUSH'}
@@ -85,18 +86,19 @@ class Code_writer:
         arithmetic = [line + ' \n' for line in arithmetic] #adding newline to each line
         return arithmetic
 
-    def write_pushpop(push_or_pop, segment:str, index:int)#C_PUSH/POP, argument,this,that..., number
+    def write_pushpop(push_or_pop:str, segment:str, index:int): #C_PUSH/POP, argument,this,that..., number make str for easyier
+        index = str(index)
+        seg_dict={'constant':'','local':'@LCL','this':'@THIS','that':'@THAT','stack':'@16','temp':'@5','pointer':'@THIS' if index is '0' else '@THAT'}
         pushpop=[]
 
-        index_asm=['@X',#X = index
+        index_asm=['@'+index,
                    'D=A']
-
 
         Push_asm=['@SP',
                   'M=M+1',
                   'A=M-1',
                   'M=D']
-        Push_seg=['@XXX',
+        Push_seg=[seg_dict[segment],
                   'D=M+D',
                   'A=D',
                   'D=M']
@@ -105,18 +107,39 @@ class Code_writer:
                  'M=M-1',
                  'A=M',
                  'D=M']
-        Pop_seg =['@XXX',#segment
+        Pop_seg =[seg_dict[segment],
                   'D=M+D',
                   '@var',
                   'M=D',
-                  '----',#<-- Pop_asm goes in there
+                  '----',#<-- Pop_asm 
                   '@var',
                   'A=M',
                   'M=D']
 
-        #pointer 0 = @THIS
-        #pointer 1 = @THAT
+        pushpop.extend(index_asm)
 
+        if segment not in ['constant','pointer']:#fore different asm
+            Push_asm[0:0] = Push_seg
+
+            Pop_seg[4:5] =  Pop_asm
+            Pop_asm = Pop_seg
+
+        asm_dict={'C_PUSH':Push_asm,'C_POP':Pop_asm} #dic for pop or push 
+
+        pushpop.extend(asm_dict[push_or_pop])
+
+        if segment is 'pointer':
+            if push_or_pop is 'C_POP':
+                #can remove start index asm
+                pushpop.extend([seg_dict[segment],'M=D'])
+            else:
+                pushpop[0:2] = [seg_dict[segment],'D=M']
+
+        pushpop= [line + ' \n' for line in pushpop] #adding newline to each line
+        return pushpop
 
 if __name__ == '__main__':
     code = Constructer()
+    pushpop = Code_writer.write_pushpop('C_PUSH','constant','4')
+    print(pushpop)
+
